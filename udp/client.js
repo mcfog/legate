@@ -5,8 +5,13 @@ var dgram = require('dgram');
 module.exports = function(remote, param) {
     var client = dgram.createSocket('udp4');
     var send = Promise.promisify(client.send.bind(client));
+    var token = Math.random().toString(36).slice(2, 8);
 
-    var buf = new Buffer(JSON.stringify({_: remote.cmd, $: param}));
+    var buf = new Buffer(JSON.stringify({
+        _: remote.cmd,
+        $: param,
+        r: token
+    }));
 
     return new Promise(function(resolve, reject) {
         client.on("message", function(response) {
@@ -18,6 +23,16 @@ module.exports = function(remote, param) {
                     message: 'remote server respond an error',
                     code: obj._,
                     detail: obj.$,
+                    response: response
+                });
+            }
+
+            if(obj.r !== token) {
+                reject({
+                    name: 'RemoteTokenError',
+                    message: 'error token in respond',
+                    expect: token,
+                    remote: obj.r,
                     response: response
                 });
             }

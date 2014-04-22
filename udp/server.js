@@ -6,11 +6,13 @@ var Conversation = (function () {
     function Conversation(socket, request, rinfo) {
         this._socket = socket;
         this._rinfo = rinfo;
+        this.token = request.r;
         this.body = request.$;
         this.cmd = request._;
     }
 
     Conversation.prototype.respond = function (obj) {
+        obj.r = this.token;
         var buffer = new Buffer(JSON.stringify(obj));
         return Promise.promisify(this._socket.send.bind(this._socket))(buffer, 0, buffer.length, this._rinfo.port, this._rinfo.address);
     };
