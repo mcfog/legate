@@ -1,5 +1,4 @@
 var Promise = require('bluebird');
-var util = require('util');
 var events = require('events');
 
 var Conversation = (function () {
@@ -66,7 +65,7 @@ var Server = (function() {
             ;
         });
     }
-    util.inherits(Server, events.EventEmitter);
+    Server.prototype = Object.create(events.EventEmitter.prototype);
 
     Server.prototype.Conversation = Conversation;
     Server.prototype.parseMessage = function (msg, rinfo) {

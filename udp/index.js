@@ -1,12 +1,11 @@
 var api = require('../lib/api');
-var util = require('util');
 var Promise = require('bluebird');
 
 var UdpApi = (function(parent) {
     function UdpApi() {
         parent.apply(this, arguments);
     }
-    util.inherits(UdpApi, parent);
+    UdpApi.prototype = Object.create(parent.prototype);
 
     UdpApi.prototype.property = {
         name: 'unnamed api',
