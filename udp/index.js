@@ -35,7 +35,7 @@ var UdpApi = (function(parent) {
 
         return Promise.cast(api.param.parse(conversation))
             .then(function(param) {
-                return api.property.logic.call(api, param);
+                return api.property.logic.call(api, param, conversation);
             })
             .then(function (result) {
                 return api.property.output.call(api, conversation, result);
