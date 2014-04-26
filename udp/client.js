@@ -48,6 +48,10 @@ module.exports = function(remote, param) {
            });
         });
 
-        send(buf, 0, buf.length, remote.port, remote.host).done();
-    });
+        send(buf, 0, buf.length, remote.port, remote.host)
+            .done();
+    })
+        .finally(function () {
+            client.close();
+        });
 };
