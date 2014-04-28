@@ -80,3 +80,6 @@ var Server = (function() {
 module.exports = function(socket) {
     return new Server(socket);
 };
+
+module.exports.Server = Server;
+module.exports.Conversation = Conversation;

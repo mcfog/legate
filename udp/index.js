@@ -58,3 +58,5 @@ var UdpApi = (function(parent) {
 module.exports = function() {
     return new UdpApi();
 };
+
+module.exports.UdpApi = UdpApi;
