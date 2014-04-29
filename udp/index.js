@@ -1,11 +1,54 @@
 var api = require('../lib/api');
 var Promise = require('bluebird');
 
+var Conversation = (function () {
+    function Conversation(socket, msg, rinfo) {
+        this._socket = socket;
+        this._rinfo = rinfo;
+
+        var request = this.parseMessage(msg);
+        this.token = request.r;
+        this.body = request.$;
+        this.cmd = request._;
+    }
+
+    Conversation.prototype.parseMessage = function(msg) {
+        return JSON.parse(msg.toString());
+    };
+    Conversation.prototype.packMessage = function(respond) {
+        return new Buffer(JSON.stringify(respond));
+    };
+
+    Conversation.prototype.respond = function (obj) {
+        obj.r = this.token;
+        var buffer = this.packMessage(obj);
+        return Promise.promisify(this._socket.send.bind(this._socket))(buffer, 0, buffer.length, this._rinfo.port, this._rinfo.address);
+    };
+
+    Conversation.prototype.success = function (result) {
+        return this.respond({
+            _: 0,
+            $: result
+        });
+    };
+
+    Conversation.prototype.error = function (error) {
+        return this.respond({
+            _: -(error.code || 1),
+            $: error
+        });
+    };
+
+    return Conversation;
+})();
+
+
 var UdpApi = (function(parent) {
     function UdpApi() {
         parent.apply(this, arguments);
     }
     UdpApi.prototype = Object.create(parent.prototype);
+    UdpApi.prototype.Conversation = Conversation;
 
     UdpApi.prototype.property = {
         name: 'unnamed api',
@@ -26,8 +69,13 @@ var UdpApi = (function(parent) {
 
         return this;
     };
-    UdpApi.prototype.handle = function (conversation, next) {
+    UdpApi.prototype.mkConversation = function(socket, msg, rinfo) {
+        return new this.Conversation(socket, msg, rinfo);
+    };
+
+    UdpApi.prototype.handle = function (socket, msg, rinfo, next) {
         var api = this;
+        var conversation = api.mkConversation(socket, msg, rinfo);
 
         if(conversation.cmd !== api.property.cmd) {
             return next();
@@ -35,7 +83,7 @@ var UdpApi = (function(parent) {
 
         return Promise.cast(api.param.parse(conversation))
             .then(function(param) {
-                return api.property.logic.call(api, param, conversation);
+                return api.property.logic.call(api, param);
             })
             .then(function (result) {
                 return api.property.output.call(api, conversation, result);
@@ -60,3 +108,4 @@ module.exports = function() {
 };
 
 module.exports.UdpApi = UdpApi;
+module.exports.Conversation = Conversation;
