@@ -4,7 +4,7 @@
   "description": "a simple api framework",
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "mcfogwang",
   "license": "none",
