@@ -6,7 +6,7 @@ var Conversation = (function () {
         this._socket = socket;
         this._rinfo = rinfo;
 
-        var request = this.parseMessage(msg);
+        var request = this.request = this.parseMessage(msg);
         this.token = request.r;
         this.body = request.$;
         this.cmd = request._;
