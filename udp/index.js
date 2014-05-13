@@ -75,7 +75,12 @@ var UdpApi = (function(parent) {
 
     UdpApi.prototype.handle = function (socket, msg, rinfo, next) {
         var api = this;
-        var conversation = api.mkConversation(socket, msg, rinfo);
+        var conversation;
+        try {
+            conversation = api.mkConversation(socket, msg, rinfo);
+        } catch(e) {
+            return Promise.reject(e);
+        }
 
         if(conversation.cmd !== api.property.cmd) {
             return next();
